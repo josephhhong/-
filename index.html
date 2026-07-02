@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>기자간담회 제작 도구 · Press Day Toolkit</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root{
+  --navy:#0b1f3a;
+  --navy-2:#132c52;
+  --mint:#00c9b3;
+  --mint-dark:#00a897;
+  --paper:#fffdf9;
+  --bg:#eef1f5;
+  --card:#ffffff;
+  --ink:#161b22;
+  --muted:#69707c;
+  --line:#dfe4ea;
+  --line-2:#eceff3;
+  --warn:#e04b3f;
+  --warn-bg:#fdeceb;
+  --radius:10px;
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0;
+  font-family:'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+}
+.app{display:flex; min-height:100vh;}
+
+/* ---------- SIDEBAR ---------- */
+.sidebar{
+  width:236px; flex:0 0 236px;
+  background:linear-gradient(180deg,var(--navy) 0%, var(--navy-2) 100%);
+  color:#fff; position:sticky; top:0; height:100vh; overflow-y:auto;
+  padding:22px 0 20px;
+}
+.brand{padding:0 20px 18px; border-bottom:1px solid rgba(255,255,255,.12); margin-bottom:10px;}
+.brand .mark{display:inline-flex; align-items:center; gap:8px; font-weight:700; font-size:15px; letter-spacing:.2px;}
+.brand .mark .dot{width:9px;height:9px;border-radius:50%;background:var(--mint);display:inline-block;}
+.brand .sub{margin-top:6px; font-size:11.5px; color:rgba(255,255,255,.55); line-height:1.5;}
+nav.steps{padding:6px 10px;}
+.step-btn{
+  width:100%; display:flex; align-items:center; gap:11px; text-align:left;
+  background:transparent; border:none; color:rgba(255,255,255,.72);
+  padding:10px 10px; border-radius:8px; cursor:pointer; font-size:13.3px;
+  font-family:inherit; margin-bottom:2px; transition:background .15s, color .15s;
+}
+.step-btn:hover{background:rgba(255,255,255,.07); color:#fff;}
+.step-btn.active{background:rgba(0,201,179,.16); color:#fff;}
+.step-btn.active .num{background:var(--mint); color:var(--navy);}
+.step-btn .num{
+  flex:0 0 22px; height:22px; border-radius:6px; background:rgba(255,255,255,.12);
+  display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
+  font-variant-numeric:tabular-nums;
+}
+.step-btn .label{display:flex; flex-direction:column;}
+.step-btn .label b{font-weight:600; font-size:13.2px;}
+.step-btn .label small{font-size:10.6px; color:rgba(255,255,255,.45); font-weight:400;}
+.step-btn.active .label small{color:rgba(255,255,255,.65);}
+
+/* ---------- MAIN ---------- */
+.main{flex:1; min-width:0; padding:34px 40px 80px;}
+.panel{display:none;}
+.panel.active{display:block; animation:fade .25s ease;}
+@keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+
+.panel-head{display:flex; justify-content:space-between; align-items:flex-end; gap:20px; margin-bottom:22px; flex-wrap:wrap;}
+.panel-head h1{font-size:22px; margin:0 0 6px; letter-spacing:-.2px;}
+.panel-head p{margin:0; color:var(--muted); font-size:13.5px; max-width:640px; line-height:1.6;}
+.eyebrow{display:inline-block; font-size:11px; font-weight:700; color:var(--mint-dark); letter-spacing:.06em; text-transform:uppercase; margin-bottom:6px;}
+.toolbar{display:flex; gap:8px; flex-shrink:0;}
+.btn{
+  border:1px solid var(--line); background:#fff; color:var(--ink); font-family:inherit;
+  padding:9px 14px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer;
+  display:inline-flex; align-items:center; gap:6px; transition:all .15s;
+}
+.btn:hover{border-color:var(--mint); color:var(--mint-dark);}
+.btn.primary{background:var(--navy); border-color:var(--navy); color:#fff;}
+.btn.primary:hover{background:var(--navy-2); color:#fff;}
+.btn.ghost{background:transparent; border-color:transparent; color:var(--muted); padding:9px 10px;}
+.btn.small{padding:6px 10px; font-size:12px; border-radius:6px;}
+.btn.danger{color:var(--warn);}
+
+.workspace{display:grid; grid-template-columns:minmax(320px,1fr) minmax(360px,1.15fr); gap:22px; align-items:start;}
+@media(max-width:1080px){.workspace{grid-template-columns:1fr;}}
+
+.card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:20px 22px; margin-bottom:18px;}
+.card h3{font-size:13.5px; margin:0 0 3px; font-weight:700;}
+.card .hint{font-size:11.8px; color:var(--muted); margin:0 0 14px; line-height:1.5;}
+.field{margin-bottom:13px;}
+.field label{display:block; font-size:12px; font-weight:600; color:#3a4150; margin-bottom:5px;}
+.field .fhint{font-size:11px; color:var(--muted); margin-top:4px;}
+input[type=text], input[type=number], input[type=url], input[type=email], textarea, select{
+  width:100%; padding:9px 11px; border:1px solid var(--line); border-radius:7px;
+  font-family:inherit; font-size:13px; color:var(--ink); background:#fbfcfd;
+}
+input:focus, textarea:focus, select:focus{outline:none; border-color:var(--mint); background:#fff;}
+textarea{resize:vertical; line-height:1.55;}
+.row2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.row3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;}
+
+.dyn-item{border:1px solid var(--line-2); border-radius:8px; padding:12px 12px 8px; margin-bottom:10px; background:#fafbfc; position:relative;}
+.dyn-item .rm{position:absolute; top:8px; right:8px;}
+.add-row{width:100%; border:1.5px dashed var(--line); background:transparent; color:var(--muted); padding:10px; border-radius:8px; cursor:pointer; font-family:inherit; font-size:12.5px; font-weight:600;}
+.add-row:hover{border-color:var(--mint); color:var(--mint-dark);}
+
+/* ---------- PREVIEW / PAPER ---------- */
+.preview-wrap{position:sticky; top:20px;}
+.preview-label{display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;}
+.preview-label span{font-size:11.5px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em;}
+.paper{
+  background:var(--paper); border:1px solid var(--line); border-radius:6px;
+  box-shadow:0 10px 30px rgba(20,30,50,.08);
+  padding:38px 40px; font-family:'Noto Serif KR', serif; color:#20242c;
+  max-height:78vh; overflow-y:auto;
+}
+.paper h2.doc-title{font-size:19px; margin:0 0 2px; font-weight:700;}
+.paper .doc-sub{font-size:12.5px; color:#6a5a4a; margin:0 0 18px;}
+.paper hr{border:none; border-top:1px solid #e6ded0; margin:16px 0;}
+.paper table{width:100%; border-collapse:collapse; font-size:12px; margin:10px 0;}
+.paper table th, .paper table td{border:1px solid #ddd4c2; padding:7px 8px; text-align:left; vertical-align:top;}
+.paper table th{background:#f4efe4; font-weight:700;}
+.embargo-badge{
+  display:inline-flex; align-items:center; gap:6px; background:var(--warn-bg); color:var(--warn);
+  border:1px solid #f3c9c3; font-family:'Pretendard',sans-serif; font-weight:700; font-size:11.5px;
+  padding:5px 10px; border-radius:20px; margin:4px 0 14px;
+}
+.mint-tag{display:inline-block; background:#e6faf6; color:var(--mint-dark); font-family:'Pretendard',sans-serif; font-weight:700; font-size:11px; padding:3px 9px; border-radius:20px; margin-right:6px;}
+.qsec{margin:14px 0 6px; font-family:'Pretendard',sans-serif; font-weight:700; font-size:12.5px; color:var(--navy);}
+.script-line{margin:0 0 10px; line-height:1.75; font-size:13.2px;}
+.script-line .dir{font-family:'Pretendard',sans-serif; color:#8a8578; font-size:11.5px; display:block; margin-bottom:2px;}
+.qitem{margin:0 0 10px; padding-left:14px; border-left:2px solid #e6ded0; line-height:1.6; font-size:12.8px;}
+.qitem b{color:var(--navy);}
+
+/* Media welcome screen */
+.screen-mock{
+  width:100%; aspect-ratio:16/9; border-radius:14px; position:relative; overflow:hidden;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+  padding:6%; box-shadow:0 20px 50px rgba(0,0,0,.35);
+}
+.screen-mock .ey{font-family:'Pretendard',sans-serif; letter-spacing:.35em; font-size:1.1vw; font-weight:700; opacity:.75; margin-bottom:1.2vw;}
+.screen-mock h1{font-family:'Pretendard',sans-serif; font-weight:800; font-size:3.1vw; line-height:1.25; margin:0 0 1vw; letter-spacing:-.01em;}
+.screen-mock .sub{font-family:'Pretendard',sans-serif; font-size:1.25vw; opacity:.85; margin:0;}
+.screen-mock .foot{position:absolute; bottom:5%; left:0; right:0; display:flex; justify-content:center; gap:.8vw; align-items:center; font-family:'Pretendard',sans-serif; font-size:1vw; opacity:.8;}
+.screen-mock .foot .bar{width:1px; height:1vw; background:currentColor; opacity:.4;}
+
+.status-pill{display:inline-block; font-size:11px; font-weight:700; padding:2px 9px; border-radius:20px; font-family:'Pretendard',sans-serif;}
+.pill-done{background:#e5f7ee; color:#1c9a5b;}
+.pill-progress{background:#fff4e0; color:#c98014;}
+.pill-todo{background:#eef0f3; color:#6b7684;}
+
+.empty-note{color:var(--muted); font-size:12.5px; font-style:italic;}
+
+/* print */
+#printRoot{display:none;}
+@media print{
+  body *{visibility:hidden;}
+  #printRoot, #printRoot *{visibility:visible;}
+  #printRoot{display:block; position:absolute; top:0; left:0; width:100%; padding:20px 30px;}
+  .paper{box-shadow:none; border:none; max-height:none; overflow:visible;}
+}
+::-webkit-scrollbar{width:8px; height:8px;}
+::-webkit-scrollbar-thumb{background:#c9d0d8; border-radius:8px;}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="mark"><span class="dot"></span> PRESS DAY TOOLKIT</div>
+      <div class="sub">기자간담회 · 시연회 준비 자료<br>한 번의 정보 입력으로 7종 자료 완성</div>
+    </div>
+    <nav class="steps" id="stepNav"></nav>
+  </aside>
+
+  <main class="main">
+    <div id="panels"></div>
+  </main>
+</div>
+
+<div id="printRoot"></div>
+
+<script>
+/* ============ STEP DEFINITIONS ============ */
+const STEPS = [
+  {id:'base',   num:'00', label:'기본 정보',        sub:'공통 입력'},
+  {id:'invite', num:'01', label:'기자 초청장',        sub:'Invitation'},
+  {id:'guide',  num:'02', label:'기자 안내문',        sub:'On-site Guide'},
+  {id:'mc',     num:'03', label:'사회자 스크립트',    sub:'MC Script'},
+  {id:'cue',    num:'04', label:'큐시트',            sub:'Cue Sheet'},
+  {id:'todo',   num:'05', label:'To-Do 리스트',      sub:'Checklist'},
+  {id:'wrap',   num:'06', label:'랩업 자료',          sub:'Wrap-up'},
+  {id:'screen', num:'07', label:'미디어 환영 스크린', sub:'Welcome Screen'},
+];
+
+const stepNav = document.getElementById('stepNav');
+stepNav.innerHTML = STEPS.map(s=>`
+  <button class="step-btn" id="nav-${s.id}" onclick="showPanel('${s.id}')">
+    <span class="num">${s.num}</span>
+    <span class="label"><b>${s.label}</b><small>${s.sub}</small></span>
+  </button>
+`).join('');
+
+function showPanel(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active', p.id==='panel-'+id));
+  document.querySelectorAll('.step-btn').forEach(b=>b.classList.toggle('active', b.id==='nav-'+id));
+  window.scrollTo(0,0);
+  renderAll();
+}
+
+/* ============ STATE ============ */
+let state = {
+  org:{ name:'NHN두레이', dept:'커뮤니케이션실', ceoName:'백창열 대표', speaker2:'박형민 수석 (Dooray 사업부)' },
+  event:{
+    name:'Dooray! AI 기자간담회',
+    dateDisplay:'2026년 4월 28일(화)',
+    timeDisplay:'오후 2시 ~ 3시 20분',
+    venueName:'NHN 판교 사옥 플레이뮤지엄 10층 위플레이스',
+    venueAddress:'경기 성남시 분당구 대왕판교로645번길 16',
+    embargoDate:'4월 29일(수) 오전 9시',
+    embargoNote:'온라인 기준이며, 지면은 29일(수) 석간 / 30일(목) 조간입니다.',
+    wifiName:'nhnent_guest',
+    wifiGuide:'WIFI 접속 후 노출되는 인터넷 팝업창에 상단 안내 ID를 성명란에 입력(예: guest00)하고 PW를 생성해 로그인해주세요.',
+    wikiUrl:'',
+    surveyUrl:'',
+    contactName:'',
+    contactPhone:'',
+    contactEmail:''
+  },
+  program:[
+    {time:'13:30~14:00', dur:'30', title:'Opening', content:'착석 및 대기', presenter:'사회자'},
+    {time:'14:00~14:50', dur:'50', title:'Speech', content:'Dooray! AI 및 에이전트 비전 발표', presenter:'백창열 대표'},
+    {time:'14:50~15:20', dur:'30', title:'Q&A', content:'사전 질문 답변 및 현장 질의응답', presenter:'백창열 대표, 박형민 수석'},
+  ],
+  qna:[
+    {q:'경쟁 협업툴 대비 우리 서비스만의 가장 차별화된 경쟁력은 무엇인가요?'},
+    {q:'이번에 소개하는 기능 중 가장 자신 있게 추천하는 것은 무엇인가요?'},
+    {q:'올해 가장 집중적으로 공략할 사업 영역과 목표를 말씀해주신다면?'},
+  ],
+  invite:{
+    headline:'Dooray! AI, 한 단계 더 진화합니다!',
+    sub:'기자 간담회에 초대합니다.',
+    greeting:'안녕하세요, 기자님.\nNHN 커뮤니케이션실입니다.',
+    body:'국내 협업툴 시장의 혁신을 선도해 온 NHN두레이가 그간의 성과를 되짚어보고 앞으로의 비전을 공유하는 자리를 마련했습니다. 이번 간담회에서는 산업군별 성과는 물론 차세대 서비스 전략을 심도 있게 공개할 예정입니다.',
+    closing:'사전 및 현장 Q&A를 통해 기자님들의 궁금증을 직접 해소해 드리는 시간도 준비하였으니, 바쁘시더라도 부디 참석하시어 자리를 빛내주시기 바랍니다.'
+  },
+  guide:{ extra:'행사가 끝난 이후 보도자료와 현장 사진도 위키 페이지에서 확인하실 수 있습니다.' },
+  mc:{
+    openingRepeat:'잠시 후 {event}가 시작됩니다. 기자님들께서는 자리에 착석을 부탁드립니다.',
+    restroom:'화장실은 행사장 바깥으로 나가셔서 오른쪽 대각선 방향 끝으로 가시면 있습니다.',
+    smoking:'흡연 장소는 한 층 위 옥상에 위치해 있습니다.',
+    seatDeadline:'행사는 정시에 시작할 예정입니다. 용무를 마치시고 시작 전까지 착석 부탁드립니다.',
+    transitionToQA:'네, {ceo}님의 그간의 성과와 앞으로의 방향성을 듣는 자리였습니다. 이어 질의응답 시간을 진행하겠습니다. 이번 질의응답은 {speaker2}님도 함께하시겠습니다.',
+    qnaIntro:'사전에 전달드린 신청폼을 통해 많은 기자님들께서 질문을 남겨주셨는데요. 가장 많이 궁금해하셨던 질문을 먼저 답변드리고, 이후 현장에서 추가 질문을 받는 시간을 갖겠습니다.',
+    qnaWrap:'네, 감사합니다. 지금부터 현장 질문을 받겠습니다. 추가로 궁금하신 점이 있는 기자님께서는 손을 들어 표시해주시면 마이크를 전달해 드리겠습니다.',
+    closing:'오늘 귀한 시간 내시어 간담회에 참석해주신 기자님들께 다시 한번 감사드립니다. 행사 안내문의 만족도 조사 설문에 참여해주시면 향후 더욱 발전된 간담회를 준비하는 데 큰 도움이 되겠습니다. 먼 길 오시느라 정말 고생 많으셨습니다.'
+  },
+  cue:{ rows:[
+    {phase:'사전 준비 및 최종 체크', time:'13:15', dur:'15', task:'마이크·스크린·음향 점검, 좌석/멀티탭 세팅, 안내문·간식·기념품 비치', note:'BGM 송출'},
+    {phase:'기자 맞이', time:'13:30', dur:'15', task:'1층 안내 후 순차 입장 안내', note:'사회자 반복 멘트'},
+    {phase:'간담회 - Speech', time:'14:00', dur:'50', task:'대표 발표', note:''},
+    {phase:'간담회 - Q&A', time:'14:50', dur:'30', task:'질의응답 (의자 2개 세팅)', note:'Q&A 참석자 사전 조율'},
+    {phase:'마무리', time:'15:20', dur:'5', task:'종료 멘트 및 배웅', note:'BGM 송출'},
+  ]},
+  todo:{ groups:[
+    {name:'사전 준비', items:[
+      {task:'행사장 예약', status:'완료', note:''},
+      {task:'초청장 작성 및 디자인', status:'완료', note:''},
+      {task:'초대 매체 선별 및 연락', status:'완료', note:''},
+      {task:'참가 신청 폼 제작', status:'진행중', note:''},
+      {task:'기념품 제작', status:'진행중', note:''},
+      {task:'보도자료 구성', status:'예정', note:''},
+    ]},
+    {name:'D-1', items:[
+      {task:'행사장 좌석/멀티탭 세팅', status:'예정', note:''},
+      {task:'명찰·출력물 준비', status:'예정', note:'기자리스트, 안내문, 보도자료, 큐시트'},
+    ]},
+    {name:'D-day', items:[
+      {task:'음향·미디어·다과 세팅', status:'예정', note:'행사 3~4시간 전'},
+      {task:'리허설 및 사진 촬영', status:'예정', note:''},
+      {task:'보도자료 배포 (참석 기자 대상)', status:'예정', note:'행사 시작 전'},
+    ]},
+    {name:'D+ (사후)', items:[
+      {task:'보도자료 배포 (전체 매체 대상)', status:'예정', note:''},
+      {task:'결과 보고 및 랩업 작성', status:'예정', note:''},
+    ]},
+  ]},
+  wrap:{
+    goals:'생성형 AI 기반 신규 기능 출시를 통해 트렌드에 맞춰 진화하는 서비스로서의 정체성을 강화하고, 시장 내 포지션을 공고히 한다.',
+    applied:'76', mediaCount:'67',
+    satisfaction:[ {label:'매우 만족', pct:'54.5'}, {label:'만족', pct:'36.4'} ],
+    good:'모두발언 및 성과 소개로 이어지는 구성이 이해하기 쉽고 유익했다는 의견이 많았습니다.',
+    improve:'질의응답 시간이 다소 짧았다는 의견과 시연이 포함되었으면 좋았을 것이라는 의견이 있었습니다.',
+    articleTotal:'', articleHighlightPct:'',
+    articles:[ {no:1,media:'',title:'',url:''} ]
+  },
+  screen:{ eyebrow:'WELCOME', title:'Dooray! AI 기자간담회', subtitle:'2026. 04. 28 (Tue) 14:00 · NHN 판교 위플레이스', bg:'g1', color:'#ffffff' }
+};
+
+/* ============ HELPERS ============ */
+function setField(path, value){
+  const keys = path.split('.');
+  let obj = state;
+  for(let i=0;i<keys.length-1;i++){
+    let k = keys[i];
+    if(/^\d+$/.test(k)) k = parseInt(k);
+    obj = obj[k];
+  }
+  let lastKey = keys[keys.length-1];
+  if(/^\d+$/.test(lastKey)) lastKey = parseInt(lastKey);
+  obj[lastKey] = value;
+}
+function getField(path){
+  const keys = path.split('.');
+  let obj = state;
+  for(const k of keys){ if(obj==null) return ''; obj = obj[/^\d+$/.test(k)?parseInt(k):k]; }
+  return obj==null? '' : obj;
+}
+function esc(s){ return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function nl2br(s){ return esc(s).replace(/\n/g,'<br>'); }
+function fill(tpl){
+  return tpl.replace('{event}', state.event.name)
+            .replace('{ceo}', state.org.ceoName)
+            .replace('{speaker2}', state.org.speaker2)
+            .replace('{venue}', state.event.venueName)
+            .replace('{date}', state.event.dateDisplay)
+            .replace('{time}', state.event.timeDisplay)
+            .replace('{embargoDate}', state.event.embargoDate)
+            .replace('{embargoNote}', state.event.embargoNote)
+            .replace('{wifiName}', state.event.wifiName);
+}
+
+function fieldInput(label, path, opts={}){
+  const val = getField(path);
+  const type = opts.type||'text';
+  if(type==='textarea'){
+    return `<div class="field"><label>${label}</label>
+      <textarea rows="${opts.rows||3}" oninput="setField('${path}', this.value); renderAll();">${esc(val)}</textarea>
+      ${opts.hint?`<div class="fhint">${opts.hint}</div>`:''}</div>`;
+  }
+  return `<div class="field"><label>${label}</label>
+    <input type="${type}" value="${esc(val)}" oninput="setField('${path}', this.value); renderAll();">
+    ${opts.hint?`<div class="fhint">${opts.hint}</div>`:''}</div>`;
+}
+
+function downloadFile(filename, content, mime){
+  const blob = new Blob([content], {type:mime||'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+function toCSV(rows){
+  return rows.map(r=>r.map(c=>{
+    const s = (c==null?'':String(c)).replace(/"/g,'""');
+    return /[",\n]/.test(s) ? `"${s}"` : s;
+  }).join(',')).join('\n');
+}
+function printPaper(paperId, title){
+  const root = document.getElementById('printRoot');
+  const src = document.getElementById(paperId);
+  root.innerHTML = `<div class="paper" style="max-height:none;box-shadow:none;">${src.innerHTML}</div>`;
+  document.title = title;
+  window.print();
+}
+
+/* ============ ROW HELPERS (shared: program table) ============ */
+function programRowsHTML(){
+  return state.program.map((r,i)=>`
+    <div class="dyn-item">
+      <button class="btn small ghost rm" onclick="removeProgramRow(${i})" title="삭제">✕</button>
+      <div class="row2">
+        <div class="field"><label>시간</label><input type="text" value="${esc(r.time)}" oninput="setField('program.${i}.time', this.value); renderAll();"></div>
+        <div class="field"><label>소요(분)</label><input type="text" value="${esc(r.dur)}" oninput="setField('program.${i}.dur', this.value); renderAll();"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>구성</label><input type="text" value="${esc(r.title)}" oninput="setField('program.${i}.title', this.value); renderAll();"></div>
+        <div class="field"><label>발표자/담당</label><input type="text" value="${esc(r.presenter)}" oninput="setField('program.${i}.presenter', this.value); renderAll();"></div>
+      </div>
+      <div class="field"><label>세부 내용</label><input type="text" value="${esc(r.content)}" oninput="setField('program.${i}.content', this.value); renderAll();"></div>
+    </div>`).join('');
+}
+function addProgramRow(){ state.program.push({time:'',dur:'',title:'',content:'',presenter:''}); refreshPanel('base'); }
+function removeProgramRow(i){ state.program.splice(i,1); refreshPanel('base'); }
+
+function qnaRowsHTML(){
+  return state.qna.map((r,i)=>`
+    <div class="dyn-item">
+      <button class="btn small ghost rm" onclick="removeQnaRow(${i})" title="삭제">✕</button>
+      <div class="field"><label>사전 질문 ${i+1}</label>
+        <textarea rows="2" oninput="setField('qna.${i}.q', this.value); renderAll();">${esc(r.q)}</textarea></div>
+    </div>`).join('');
+}
+function addQnaRow(){ state.qna.push({q:''}); refreshPanel('base'); }
+function removeQnaRow(i){ state.qna.splice(i,1); refreshPanel('base'); }
+
+/* ============ PANEL: 기본 정보 ============ */
+function buildBasePanel(){
+  return `<section class="panel" id="panel-base">
+    <div class="panel-head">
+      <div><span class="eyebrow">Step 00</span><h1>기본 정보</h1>
+      <p>여기에 입력한 정보는 초청장·안내문·사회자 스크립트·큐시트·랩업 자료에 자동으로 반영됩니다. 먼저 이 항목부터 채워주세요.</p></div>
+    </div>
+    <div class="workspace">
+      <div>
+        <div class="card">
+          <h3>주최 · 발표자</h3>
+          ${fieldInput('주최사 / 브랜드명','org.name')}
+          ${fieldInput('담당 부서','org.dept')}
+          ${fieldInput('대표 발표자','org.ceoName')}
+          ${fieldInput('공동 발표자 (Q&A 등)','org.speaker2')}
+        </div>
+        <div class="card">
+          <h3>행사 개요</h3>
+          ${fieldInput('행사명','event.name')}
+          <div class="row2">
+            ${fieldInput('일자 표기','event.dateDisplay')}
+            ${fieldInput('시간 표기','event.timeDisplay')}
+          </div>
+          ${fieldInput('장소명','event.venueName')}
+          ${fieldInput('상세 주소','event.venueAddress')}
+        </div>
+        <div class="card">
+          <h3>엠바고 · 와이파이</h3>
+          ${fieldInput('엠바고 시점','event.embargoDate')}
+          ${fieldInput('엠바고 부연 설명','event.embargoNote', {type:'textarea', rows:2})}
+          ${fieldInput('Wi-Fi 이름 (SSID)','event.wifiName')}
+          ${fieldInput('Wi-Fi 접속 안내','event.wifiGuide', {type:'textarea', rows:2})}
+        </div>
+        <div class="card">
+          <h3>링크 · 담당자</h3>
+          ${fieldInput('자료 위키 / 프레스킷 링크','event.wikiUrl', {hint:'선택 입력'})}
+          ${fieldInput('만족도 조사 설문 링크','event.surveyUrl', {hint:'선택 입력'})}
+          <div class="row3">
+            ${fieldInput('담당자명','event.contactName')}
+            ${fieldInput('연락처','event.contactPhone')}
+            ${fieldInput('이메일','event.contactEmail')}
+          </div>
+        </div>
+        <div class="card">
+          <h3>프로그램 구성</h3>
+          <p class="hint">초청장·안내문·큐시트·랩업 자료의 프로그램 표로 그대로 반영됩니다.</p>
+          ${programRowsHTML()}
+          <button class="add-row" onclick="addProgramRow()">+ 순서 추가</button>
+        </div>
+        <div class="card">
+          <h3>사전 질문 (Q&A)</h3>
+          <p class="hint">사회자 스크립트와 랩업 자료에 활용됩니다.</p>
+          ${qnaRowsHTML()}
+          <button class="add-row" onclick="addQnaRow()">+ 질문 추가</button>
+        </div>
+      </div>
+      <div class="preview-wrap">
+        <div class="preview-label"><span>미리보기 · 행사 한눈에 보기</span></div>
+        <div class="paper" id="paper-base"></div>
+      </div>
+    </div>
+  </section>`;
+}
+function renderBase(){
+  const el = document.getElementById('paper-base'); if(!el) return;
+  el.innerHTML = `
+    <h2 class="doc-title">${esc(state.event.name)}</h2>
+    <p class="doc-sub">${esc(state.org.name)} · ${esc(state.org.dept)}</p>
+    <div class="embargo-badge">⏱ 엠바고 ${esc(state.event.embargoDate)}</div>
+    <table><tr><th style="width:90px">일시</th><td>${esc(state.event.dateDisplay)} · ${esc(state.event.timeDisplay)}</td></tr>
+    <tr><th>장소</th><td>${esc(state.event.venueName)}<br><span style="color:#8a8578;font-size:11px;">${esc(state.event.venueAddress)}</span></td></tr>
+    <tr><th>발표자</th><td>${esc(state.org.ceoName)} · ${esc(state.org.speaker2)}</td></tr></table>
+    <div class="qsec">프로그램</div>
+    <table><tr><th>시간</th><th>구성</th><th>내용</th><th>발표자</th></tr>
+    ${state.program.map(r=>`<tr><td>${esc(r.time)}</td><td>${esc(r.title)}</td><td>${esc(r.content)}</td><td>${esc(r.presenter)}</td></tr>`).join('')}
+    </table>
+    <div class="qsec">사전 질문 (${state.qna.length})</div>
+    ${state.qna.map((q,i)=>`<div class="qitem"><b>Q${i+1}.</b> ${esc(q.q)}</div>`).join('') || '<p class="empty-note">등록된 질문이 없습니다.</p>'}
+  `;
+}
+
+/* ============ PANEL: 기자 초청장 ============ */
+function buildInvitePanel(){
+  return `<section class="panel" id="panel-invite">
+    <div class="panel-head">
+      <div><span class="eyebrow">Step 01</span><h1>기자 초청장</h1>
+      <p>행사 개요는 기본 정보에서 자동으로 반영됩니다. 인사말과 리드 문구만 다듬어주세요.</p></div>
+      <div class="toolbar">
+        <button class="btn" onclick="printPaper('paper-invite','기자초청장')">🖨 인쇄 / PDF</button>
+        <button class="btn primary" onclick="copyPaperText('paper-invite')">텍스트 복사</button>
+      </div>
+    </div>
+    <div class="workspace">
+      <div>
+        <div class="card">
+          <h3>헤드라인</h3>
+          ${fieldInput('메인 헤드라인','invite.headline')}
+          ${fieldInput('서브 헤드라인','invite.sub')}
+        </div>
+        <div class="card">
+          <h3>본문</h3>
+          ${fieldInput('인사말','invite.greeting', {type:'textarea', rows:2})}
+          ${fieldInput('본문 (배경/취지)','invite.body', {type:'textarea', rows:5})}
+          ${fieldInput('마무리 (참석 요청)','invite.closing', {type:'textarea', rows:3})}
+        </div>
+        <p class="hint" style="padding:0 4px;">※ 일시·장소·프로그램·RSVP 담당자는 <b>기본 정보</b> 탭 값을 그대로 사용합니다.</p>
+      </div>
+      <div class="preview-wrap">
+        <div class="preview-label"><span>미리보기</span></div>
+        <div class="paper" id="paper-invite"></div>
+      </div>
+    </div>
+  </section>`;
+}
+function renderInvite(){
+  const el = document.getElementById('paper-invite'); if(!el) return;
+  const e = state.event, o = state.org, inv = state.invite;
+  el.innerHTML = `
+    <h2 class="doc-title">${esc(inv.headline)}</h2>
+    <p class="doc-sub">${esc(inv.sub)}</p>
+    <p class="script-line">${nl2br(inv.greeting)}</p>
+    <p class="script-line">${nl2br(inv.body)}</p>
+    <p class="script-line">${nl2br(inv.closing)}</p>
+    <hr>
+    <p class="script-line"><b>일시</b> ${esc(e.dateDisplay)} ${esc(e.timeDisplay)}<br>
+    <b>장소</b> ${esc(e.venueName)} <span style="color:#8a8578;font-size:11.5px;">(${esc(e.venueAddress)})</span></p>
+    <div class="qsec">프로그램</div>
+    <table><tr><th>Time</th><th>RT</th><th>Title</th><th>Content</th></tr>
+    ${state.program.map(r=>`<tr><td>${esc(r.time)}</td><td>${esc(r.dur)}'</td><td>${esc(r.title)}</td><td>${esc(r.content)}</td></tr>`).join('')}
+    </table>
+    ${(e.contactName||e.contactPhone||e.contactEmail) ? `<hr><p class="script-line" style="font-size:12px;color:#6a5a4a;">참석 문의 · ${esc(o.dept)} ${esc(e.contactName)} ${e.contactPhone?('· '+esc(e.contactPhone)):''} ${e.contactEmail?('· '+esc(e.contactEmail)):''}</p>` : ''}
+  `;
+}
+function copyPaperText(id){
+  const el = document.getElementById(id);
+  const text = el.innerText;
+  navigator.clipboard.writeText(text).then(()=>toast('본문 텍스트를 복사했습니다.'));
+}
+function toast(msg){
+  let t = document.getElementById('toastBox');
+  if(!t){ t=document.createElement('div'); t.id='toastBox';
+    t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#161b22;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;font-family:Pretendard,sans-serif;z-index:9999;opacity:0;transition:opacity .2s;';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg; t.style.opacity='1';
+  clearTimeout(t._h); t._h = setTimeout(()=>t.style.opacity='0', 1800);
+}
+
+/* ============ PANEL: 기자 안내문 ============ */
+function buildGuidePanel(){
+  return `<section class="panel" id="panel-guide">
+    <div class="panel-head">
+      <div><span class="eyebrow">Step 02</span><h1>기자 안내문</h1>
+      <p>현장 좌석에 비치하는 1장짜리 안내문입니다. Wi-Fi·프로그램·엠바고는 기본 정보를 그대로 사용합니다.</p></div>
+      <div class="toolbar">
+        <button class="btn" onclick="printPaper('paper-guide','기자안내문')">🖨 인쇄 / PDF</button>
+        <button class="btn primary" onclick="copyPaperText('paper-guide')">텍스트 복사</button>
+      </div>
+    </div>
+    <div class="workspace">
+      <div>
+        <div class="card">
+          <h3>추가 안내 사항</h3>
+          <p class="hint">위키 링크, 후기 요청 등 기본 항목 외에 덧붙일 문구가 있다면 입력하세요.</p>
+          ${fieldInput('추가 안내 문구','guide.extra', {type:'textarea', rows:3})}
+        </div>
+        <p class="hint" style="padding:0 4px;">※ Wi-Fi 정보, 프로그램, 엠바고 문구, 링크는 <b>기본 정보</b> 탭에서 수정하세요.</p>
+      </div>
+      <div class="preview-wrap">
+        <div class="preview-label"><span>미리보기 · A4 1장</span></div>
+        <div class="paper" id="paper-guide"></div>
+      </div>
+    </div>
+  </section>`;
+}
+function renderGuide(){
+  const el = document.getElementById('paper-guide'); if(!el) return;
+  const e = state.event;
+  el.innerHTML = `
+    <h2 class="doc-title">${esc(state.org.name)} ${esc(e.name)} 안내 사항</h2>
+    <p class="doc-sub">${esc(e.dateDisplay)}</p>
+    <table><tr><th style="width:110px">Wi-Fi 이용 안내</th><td>SSID <b>${esc(e.wifiName)}</b> 접속 후 안내에 따라 로그인 — ${esc(e.wifiGuide)}</td></tr></table>
+    <div class="qsec">▣ 행사 프로그램</div>
+    <table><tr><th>Time</th><th>RT</th><th>Title</th><th>Content</th></tr>
+    ${state.program.map(r=>`<tr><td>${esc(r.time)}</td><td>${esc(r.dur)}'</td><td>${esc(r.title)}</td><td>${esc(r.content)}</td></tr>`).join('')}
+    </table>
+    <div class="qsec">▣ 행사 엠바고 안내</div>
+    <div class="embargo-badge">⏱ 모든 자료의 엠바고는 ${esc(e.embargoDate)}입니다</div>
+    <p class="script-line">${esc(e.embargoNote)}</p>
+    ${e.wikiUrl ? `<div class="qsec">▣ 자료 위키</div><p class="script-line">이번 간담회 개요와 프레스킷을 확인할 수 있는 링크입니다.<br>${esc(e.wikiUrl)}</p>` : ''}
+    <div class="qsec">▣ 행사 후기</div>
+    <p class="script-line">${esc(state.guide.extra)}${e.surveyUrl ? '<br>설문 링크: '+esc(e.surveyUrl) : ''}</p>
+  `;
+}
+
+/* ============ PANEL: 사회자 스크립트 ============ */
+function buildMcPanel(){
+  const mc = state.mc;
+  return `<section class="panel" id="panel-mc">
+    <div class="panel-head">
+      <div><span class="eyebrow">Step 03</span><h1>사회자 스크립트</h1>
+      <p>오프닝부터 Q&A, 마무리까지 순서대로 읽을 수 있는 진행 대본입니다. {event}, {ceo}, {speaker2} 는 기본 정보 값으로 자동 치환됩니다.</p></div>
+      <div class="toolbar">
+        <button class="btn" onclick="printPaper('paper-mc','사회자스크립트')">🖨 인쇄 / PDF</button>
+        <button class="btn primary" onclick="copyPaperText('paper-mc')">텍스트 복사</button>
+      </div>
+    </div>
+    <div class="workspace">
+      <div>
+        <div class="card">
+          <h3>기자 맞이 (반복 안내)</h3>
+          ${fieldInput('입장 시 반복 멘트','mc.openingRepeat', {type:'textarea', rows:2, hint:'{event} 사용 가능'})}
+          ${fieldInput('화장실 위치 안내','mc.restroom', {type:'textarea', rows:2})}
+          ${fieldInput('흡연 구역 안내','mc.smoking', {type:'textarea', rows:2})}
+          ${fieldInput('착석 시한 안내','mc.seatDeadline', {type:'textarea', rows:2})}
+        </div>
+        <div class="card">
+          <h3>발표 → Q&A 전환</h3>
+          ${fieldInput('전환 멘트','mc.transitionToQA', {type:'textarea', rows:3, hint:'{ceo}, {speaker2} 사용 가능'})}
+          ${fieldInput('사전 질문 안내 멘트','mc.qnaIntro', {type:'textarea', rows:3})}
+          ${fieldInput('현장 질문 전환 멘트','mc.qnaWrap', {type:'textarea', rows:2})}
+        </div>
+        <div class="card">
+          <h3>마무리</h3>
+          ${fieldInput('클로징 멘트','mc.closing', {type:'textarea', rows:4})}
+        </div>
+        <p class="hint" style="padding:0 4px;">※ 사전 질문 목록은 <b>기본 정보</b> 탭의 Q&A 항목을 그대로 사용합니다.</p>
+      </div>
+      <div class="preview-wrap">
+        <div class="preview-label"><span>미리보기 · 진행 대본</span></div>
+        <div class="paper" id="paper-mc"></div>
+      </div>
+    </div>
+  </section>`;
+}
+function renderMc(){
+  const el = document.getElementById('paper-mc'); if(!el) return;
+  const mc = state.mc, e = state.event;
+  el.innerHTML = `
+    <h2 class="doc-title">${esc(e.name)} · 사회자 스크립트</h2>
+    <p class="doc-sub">${esc(e.dateDisplay)} · ${esc(e.venueName)}</p>
+
+    <div class="qsec">1. 기자 맞이 (반복)</div>
+    <p class="script-line"><span class="dir">(기자들이 입장하면 여러 번 반복)</span>${nl2br(fill(mc.openingRepeat))}</p>
+    <p class="script-line">${nl2br(fill(mc.restroom))}</p>
+    <p class="script-line">${nl2br(fill(mc.smoking))}</p>
+    <p class="script-line">${nl2br(fill(mc.seatDeadline))}</p>
+    <p class="script-line">Wi-Fi는 <b>${esc(e.wifiName)}</b>에 연결해주세요. ${nl2br(e.wifiGuide)}</p>
+    <p class="script-line">이번 간담회 기사는 엠바고가 있습니다. ${esc(e.embargoDate)} 기준이며, ${esc(e.embargoNote)}</p>
+
+    <div class="qsec">2. 발표 → Q&A 전환</div>
+    <p class="script-line">${nl2br(fill(mc.transitionToQA))}</p>
+    <p class="script-line"><span class="dir">(Q&A용 좌석 세팅)</span>${nl2br(fill(mc.qnaIntro))}</p>
+    ${state.qna.map((q,i)=>`<div class="qitem"><b>Q${i+1}.</b> ${esc(q.q)}</div>`).join('') || '<p class="empty-note">등록된 사전 질문이 없습니다.</p>'}
+    <p class="script-line">${nl2br(fill(mc.qnaWrap))}</p>
+    <p class="script-line"><span class="dir">(현장 질문 진행 …)</span>시간 관계상 마지막 질문을 받고 질의응답을 마무리하겠습니다.</p>
+
+    <div class="qsec">3. 마무리</div>
+    <p class="script-line">${nl2br(fill(mc.closing))}</p>
+    <p class="script-line">다시 한번 엠바고 안내드립니다. ${esc(e.embargoDate)} 기준이며, ${esc(e.embargoNote)}</p>
+  `;
+}
+
+/* ============ PANEL: 큐시트 ============ */
+function cueRowsHTML(){
+  return state.cue.rows.map((r,i)=>`
+    <div class="dyn-item">
+      <button class="btn small ghost rm" onclick="removeCueRow(${i})" title="삭제">✕</button>
+      <div class="row2">
+        <div class="field"><label>구분</label><input type="text" value="${esc(r.phase)}" oninput="setField('cue.rows.${i}.phase', this.value); renderAll();"></div>
+        <div class="field"><label>시작 시간</label><input type="text" value="${esc(r.time)}" oninput="setField('cue.rows.${i}.time', this.value); renderAll();"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>소요(분)</label><input type="text" value="${esc(r.dur)}" oninput="setField('cue.rows.${i}.dur', this.value); renderAll();"></div>
+        <div class="field"><label>비고</label><input type="text" value="${esc(r.note)}" oninput="setField('cue.rows.${i}.note', this.value); renderAll();"></div>
+      </div>
+      <div class="field"><label>현장 진행 / 담당</label><textarea rows="2" oninput="setField('cue.rows.${i}.task', this.value); renderAll();">${esc(r.task)}</textarea></div>
+    </div>`).join('');
+}
+function addCueRow(){ state.cue.rows.push({phase:'',time:'',dur:'',task:'',note:''}); refreshPanel('cue'); }
+function removeCueRow(i){ state.cue.rows.splice(i,1); refreshPanel('cue'); }
+
+function buildCuePanel(){
+  return `<section class="panel" id="panel-cue">
+    <div class="panel-head">
+      <div><span class="eyebrow">Step 04</span><h1>큐시트</h1>
+      <p>현장 스태프가 시간대별로 확인하는 진행표입니다. 사회자 스크립트는 03단계 내용을 참고해 요약해 넣으세요.</p></div>
+      <div class="toolbar">
+        <button class="btn" onclick="printPaper('paper-cue','큐시트')">🖨 인쇄 / PDF</button>
+        <button class="btn primary" onclick="exportCueCSV()">⬇ CSV 다운로드</button>
+      </div>
+    </div>
+    <div class="workspace">
+      <div>
+        <div class="card">
+          <h3>진행 순서</h3>
+          ${cueRowsHTML()}
+          <button class="add-row" onclick="addCueRow()">+ 순서 추가</button>
+        </div>
+      </div>
+      <div class="preview-wrap">
+        <div class="preview-label"><span>미리보기</span></div>
+        <div class="paper" id="paper-cue"></div>
+      </div>
+    </div>
+  </section>`;
+}
+function renderCue(){
+  const el = document.getElementById('paper-cue'); if(!el) return;
+  const e = state.event;
+  el.innerHTML = `
+    <h2 class="doc-title">[${esc(e.name)}] Cue Sheet</h2>
+    <p class="doc-sub">${esc(e.dateDisplay)} · ${esc(e.venueName)}</p>
+    <table><tr><th>구분</th><th>시작</th><th>소요</th><th>현장 진행 / 담당</th><th>비고</th></tr>
+    ${state.cue.rows.map(r=>`<tr><td>${esc(r.phase)}</td><td>${esc(r.time)}</td><td>${esc(r.dur)}분</td><td>${nl2br(r.task)}</td><td>${esc(r.note)}</td></tr>`).join('')}
+    </table>
+    <p class="empty-note">사회자 멘트 전문은 [03. 사회자 스크립트] 문서를 함께 인쇄해 참고하세요.</p>
+  `;
+}
+function exportCueCSV(){
+  const rows = [['구분','시작','소요(분)','현장 진행/담당','비고']];
+  state.cue.rows.forEach(r=>rows.push([r.phase,r.time,r.dur,r.task,r.note]));
+  downloadFile('큐시트.csv', '\uFEFF'+toCSV(rows), 'text/csv;charset=utf-8');
+}
+
+/* ============ PANEL: To-Do 리스트 ============ */
+function todoGroupsHTML(){
+  return state.todo.groups.map((g,gi)=>`
+    <div class="dyn-item" style="background:#fff;">
+      <button class="btn small ghost rm" onclick="removeTodoGroup(${gi})" title="구간 삭제">✕</button>
+      <div class="field"><label>구간명</label><input type="text" value="${esc(g.name)}" oninput="setField('todo.groups.${gi}.name', this.value); renderAll();"></div>
+      ${g.items.map((it,ii)=>`
+        <div style="border-top:1px dashed var(--line-2); padding-top:10px; margin-top:8px;">
+          <div class="row2">
+            <div class="field"><label>할 일</label><input type="text" value="${esc(it.task)}" oninput="setField('todo.groups.${gi}.items.${ii}.task', this.value); renderAll();"></div>
+            <div class="field"><label>상태</label>
+              <select onchange="setField('todo.groups.${gi}.items.${ii}.status', this.value); renderAll();">
+                ${['예정','진행중','완료'].map(s=>`<option ${it.status===s?'selected':''}>${s}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+          <div class="field"><label>비고</label>
+            <div style="display:flex; gap:8px;">
+              <input type="text" style="flex:1" value="${esc(it.note)}" oninput="setField('todo.groups.${gi}.items.${ii}.note', this.value); renderAll();">
+              <button class="btn small ghost" onclick="removeTodoItem(${gi},${ii})">✕</button>
+            </div>
+          </div>
+        </div>
+      `).join('')}
+      <button class="add-row" style="margin-top:8px;" onclick="addTodoItem(${gi})">+ 할 일 추가</button>
+    </div>`).join('');
+}
+function addTodoGroup(){ state.todo.groups.push({name:'새 구간',items:[]}); refreshPanel('todo'); }
+function removeTodoGroup(gi){ state.todo.groups.splice(gi,1); refreshPanel('todo'); }
+function addTodoItem(gi){ state.todo.groups[gi].items.push({task:'',status:'예정',note:''}); refreshPanel('todo'); }
+function removeTodoItem(gi,ii){ state.todo.groups[gi].items.splice(ii,1); refreshPanel('todo'); }
+
+function buildTodoPanel(){
+  return `<section class="panel" id="panel-todo">
+    <div class="panel-head">
+      <div><span class="eyebrow">Step 05</span><h1>To-Do 리스트</h1>
+      <p>준비 단계별(사전 준비 → D-1 → D-day → D+)로 체크리스트를 관리하세요.</p></div>
+      <div class="toolbar">
+        <button class="btn" onclick="printPaper('paper-todo','To-Do 리스트')">🖨 인쇄 / PDF</button>
+        <button class="btn primary" onclick="exportTodoCSV()">⬇ CSV 다운로드</button>
+      </div>
+    </div>
+    <div class="workspace">
+      <div>
+        <div class="card">
+          <h3>체크리스트</h3>
+          ${todoGroupsHTML()}
+          <button class="add-row" onclick="addTodoGroup()">+ 구간 추가</button>
+        </div>
+      </div>
+      <div class="preview-wrap">
+        <div class="preview-label"><span>미리보기</span></div>
+        <div class="paper" id="paper-todo"></div>
+      </div>
+    </div>
+  </section>`;
+}
+function pillClass(s){ return s==='완료'?'pill-done':(s==='진행중'?'pill-progress':'pill-todo'); }
+function renderTodo(){
+  const el = document.getElementById('paper-todo'); if(!el) return;
+  el.innerHTML = `
+    <h2 class="doc-title">${esc(state.event.name)} · To-Do List</h2>
+    <p class="doc-sub">${esc(state.event.dateDisplay)}</p>
+    ${state.todo.groups.map(g=>`
+      <div class="qsec">${esc(g.name)}</div>
+      <table><tr><th style="width:46%">할 일</th><th style="width:16%">상태</th><th>비고</th></tr>
+      ${g.items.map(it=>`<tr><td>${esc(it.task)}</td><td><span class="status-pill ${pillClass(it.status)}">${esc(it.status)}</span></td><td>${esc(it.note)}</td></tr>`).join('') || '<tr><td colspan="3" class="empty-note">항목 없음</td></tr>'}
+      </table>
+    `).join('')}
+  `;
+}
+function exportTodoCSV(){
+  const rows = [['구간','할 일','상태','비고']];
+  state.todo.groups.forEach(g=>g.items.forEach(it=>rows.push([g.name,it.task,it.status,it.note])));
+  downloadFile('To-Do리스트.csv', '\uFEFF'+toCSV(rows), 'text/csv;charset=utf-8');
+}
+
+/* ============ PANEL: 랩업 자료 ============ */
+function satisfactionRowsHTML(){
+  return state.wrap.satisfaction.map((s,i)=>`
+    <div class="row3" style="align-items:end; margin-bottom:8px;">
+      <div class="field" style="margin-bottom:0;"><label>${i===0?'항목':''}</label><input type="text" value="${esc(s.label)}" oninput="setField('wrap.satisfaction.${i}.label', this.value); renderAll();"></div>
+      <div class="field" style="margin-bottom:0;"><label>${i===0?'응답 비율(%)':''}</label><input type="text" value="${esc(s.pct)}" oninput="setField('wrap.satisfaction.${i}.pct', this.value); renderAll();"></div>
+      <button class="btn small ghost" onclick="removeSatisfaction(${i})">✕ 삭제</button>
+    </div>`).join('');
+}
+function addSatisfaction(){ state.wrap.satisfaction.push({label:'',pct:''}); refreshPanel('wrap'); }
+function removeSatisfaction(i){ state.wrap.satisfaction.splice(i,1); refreshPanel('wrap'); }
+
+function articleRowsHTML(){
+  return state.wrap.articles.map((a,i)=>`
+    <div class="dyn-item">
+      <button class="btn small ghost rm" onclick="removeArticle(${i})" title="삭제">✕</button>
+      <div class="row2">
+        <div class="field"><label>매체</label><input type="text" value="${esc(a.media)}" oninput="setField('wrap.articles.${i}.media', this.value); renderAll();"></div>
+        <div class="field"><label>링크</label><input type="url" value="${esc(a.url)}" oninput="setField('wrap.articles.${i}.url', this.value); renderAll();"></div>
+      </div>
+      <div class="field"><label>제목</label><input type="text" value="${esc(a.title)}" oninput="setField('wrap.articles.${i}.title', this.value); renderAll();"></div>
+    </div>`).join('');
+}
+function addArticle(){ state.wrap.articles.push({no:state.wrap.articles.length+1,media:'',title:'',url:''}); refreshPanel('wrap'); }
+function removeArticle(i){ state.wrap.articles.splice(i,1); refreshPanel('wrap'); }
+
+function buildWrapPanel(){
+  return `<section class="panel" id="panel-wrap">
+    <div class="panel-head">
+      <div><span class="eyebrow">Step 06</span><h1>랩업 자료</h1>
+      <p>행사 종료 후 내부 공유용 결과 보고서입니다. 목표·프로그램은 기본 정보를 그대로 사용합니다.</p></div>
+      <div class="toolbar">
+        <button class="btn" onclick="printPaper('paper-wrap','Wrap-up')">🖨 인쇄 / PDF</button>
+        <button class="btn primary" onclick="copyPaperText('paper-wrap')">텍스트 복사</button>
+      </div>
+    </div>
+    <div class="workspace">
+      <div>
+        <div class="card">
+          <h3>목표 · 참석 규모</h3>
+          ${fieldInput('행사 목표','wrap.goals', {type:'textarea', rows:3})}
+          <div class="row2">
+            ${fieldInput('신청 인원','wrap.applied')}
+            ${fieldInput('참석 매체 수','wrap.mediaCount')}
+          </div>
+        </div>
+        <div class="card">
+          <h3>만족도 조사</h3>
+          ${satisfactionRowsHTML()}
+          <button class="add-row" onclick="addSatisfaction()">+ 항목 추가</button>
+        </div>
+        <div class="card">
+          <h3>주요 의견</h3>
+          ${fieldInput('좋았던 점','wrap.good', {type:'textarea', rows:3})}
+          ${fieldInput('개선 사항','wrap.improve', {type:'textarea', rows:3})}
+        </div>
+        <div class="card">
+          <h3>관련 기사 현황</h3>
+          <div class="row2">
+            ${fieldInput('총 기사 건수','wrap.articleTotal')}
+            ${fieldInput('핵심 메시지 반영 비율(%)','wrap.articleHighlightPct')}
+          </div>
+          ${articleRowsHTML()}
+          <button class="add-row" onclick="addArticle()">+ 기사 추가</button>
+        </div>
+      </div>
+      <div class="preview-wrap">
+        <div class="preview-label"><span>미리보기</span></div>
+        <div class="paper" id="paper-wrap"></div>
+      </div>
+    </div>
+  </section>`;
+}
+function renderWrap(){
+  const el = document.getElementById('paper-wrap'); if(!el) return;
+  const w = state.wrap, e = state.event;
+  el.innerHTML = `
+    <h2 class="doc-title">[Wrap-up] ${esc(e.name)}</h2>
+    <p class="doc-sub">${esc(e.dateDisplay)} · ${esc(e.venueName)}</p>
+    <div class="qsec">개요</div>
+    <p class="script-line"><b>목표</b> ${nl2br(w.goals)}</p>
+    <table><tr><th style="width:120px">참석 규모</th><td>신청 ${esc(w.applied)}명 · 참석 매체 ${esc(w.mediaCount)}개</td></tr></table>
+    <div class="qsec">프로그램</div>
+    <table><tr><th>시간</th><th>구성</th><th>발표자</th></tr>
+    ${state.program.map(r=>`<tr><td>${esc(r.time)}</td><td>${esc(r.title)} - ${esc(r.content)}</td><td>${esc(r.presenter)}</td></tr>`).join('')}
+    </table>
+    <div class="qsec">참석 기자 반응</div>
+    <table><tr>${w.satisfaction.map(s=>`<th>${esc(s.label)}</th>`).join('')}</tr>
+    <tr>${w.satisfaction.map(s=>`<td>${esc(s.pct)}%</td>`).join('')}</tr></table>
+    <p class="script-line"><b>좋았던 점</b> ${nl2br(w.good)}</p>
+    <p class="script-line"><b>개선 사항</b> ${nl2br(w.improve)}</p>
+    <div class="qsec">관련 기사</div>
+    <p class="script-line">${w.articleTotal?('총 <b>'+esc(w.articleTotal)+'건</b> 기사화'):''} ${w.articleHighlightPct?('· 핵심 메시지 반영 비율 <b>'+esc(w.articleHighlightPct)+'%</b>'):''}</p>
+    <table><tr><th>No.</th><th>매체</th><th>제목</th></tr>
+    ${w.articles.filter(a=>a.media||a.title).map((a,i)=>`<tr><td>${i+1}</td><td>${esc(a.media)}</td><td>${a.url?`<a href="${esc(a.url)}">${esc(a.title)}</a>`:esc(a.title)}</td></tr>`).join('') || '<tr><td colspan="3" class="empty-note">등록된 기사가 없습니다.</td></tr>'}
+    </table>
+  `;
+}
+
+/* ============ PANEL: 기자 환영 미디어 스크린 ============ */
+const SCREEN_BGS = {
+  g1: 'linear-gradient(135deg,#0b1f3a 0%, #12406b 55%, #00c9b3 130%)',
+  g2: 'linear-gradient(135deg,#101418 0%, #1c2530 100%)',
+  g3: 'linear-gradient(135deg,#00a897 0%, #0b1f3a 100%)',
+  g4: 'linear-gradient(135deg,#f5f1e6 0%, #e7ded0 100%)',
+};
+function buildScreenPanel(){
+  const s = state.screen;
+  return `<section class="panel" id="panel-screen">
+    <div class="panel-head">
+      <div><span class="eyebrow">Step 07</span><h1>기자 환영 미디어 스크린</h1>
+      <p>로비·행사장 대형 스크린에 띄우는 환영 화면입니다. 16:9 이미지로 다운로드해 미디어 서버에 올리세요.</p></div>
+      <div class="toolbar">
+        <button class="btn primary" onclick="downloadScreenPNG()">⬇ PNG 다운로드</button>
+      </div>
+    </div>
+    <div class="workspace">
+      <div>
+        <div class="card">
+          <h3>문구</h3>
+          ${fieldInput('상단 라벨 (Eyebrow)','screen.eyebrow')}
+          ${fieldInput('메인 타이틀','screen.title', {type:'textarea', rows:2})}
+          ${fieldInput('서브 문구 (일시·장소)','screen.subtitle')}
+        </div>
+        <div class="card">
+          <h3>디자인</h3>
+          <div class="field"><label>배경</label>
+            <select onchange="setField('screen.bg', this.value); renderAll();">
+              <option value="g1" ${s.bg==='g1'?'selected':''}>네이비 × 민트 그라데이션</option>
+              <option value="g2" ${s.bg==='g2'?'selected':''}>딥 다크</option>
+              <option value="g3" ${s.bg==='g3'?'selected':''}>민트 × 네이비</option>
+              <option value="g4" ${s.bg==='g4'?'selected':''}>라이트 크림 (밝은 배경)</option>
+            </select>
+          </div>
+          <div class="field"><label>텍스트 색상</label>
+            <input type="text" value="${esc(s.color)}" oninput="setField('screen.color', this.value); renderAll();" placeholder="#ffffff">
+            <div class="fhint">밝은 배경을 선택했다면 어두운 색(#161b22 등)을 권장합니다.</div>
+          </div>
+        </div>
+      </div>
+      <div class="preview-wrap">
+        <div class="preview-label"><span>미리보기 · 16:9</span></div>
+        <div class="screen-mock" id="screenCanvas"></div>
+      </div>
+    </div>
+  </section>`;
+}
+function renderScreen(){
+  const el = document.getElementById('screenCanvas'); if(!el) return;
+  const s = state.screen;
+  el.style.background = SCREEN_BGS[s.bg] || SCREEN_BGS.g1;
+  el.style.color = s.color || '#ffffff';
+  el.innerHTML = `
+    <div class="ey">${esc(s.eyebrow)}</div>
+    <h1>${nl2br(s.title)}</h1>
+    <p class="sub">${esc(s.subtitle)}</p>
+    <div class="foot">
+      <span>${esc(state.org.name)}</span><span class="bar"></span><span>${esc(state.org.dept)}</span>
+    </div>
+  `;
+}
+function downloadScreenPNG(){
+  const node = document.getElementById('screenCanvas');
+  if(!window.html2canvas){ toast('이미지 라이브러리를 불러오는 중입니다. 잠시 후 다시 시도해주세요.'); return; }
+  html2canvas(node, {scale:2, backgroundColor:null}).then(canvas=>{
+    canvas.toBlob(blob=>{
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = '기자환영스크린.png'; a.click();
+      URL.revokeObjectURL(url);
+    });
+  });
+}
+
+/* ============ REGISTRY / INIT ============ */
+const PANEL_BUILDERS = {
+  base: buildBasePanel, invite: buildInvitePanel, guide: buildGuidePanel,
+  mc: buildMcPanel, cue: buildCuePanel, todo: buildTodoPanel,
+  wrap: buildWrapPanel, screen: buildScreenPanel,
+};
+const RENDERERS = {
+  base: renderBase, invite: renderInvite, guide: renderGuide,
+  mc: renderMc, cue: renderCue, todo: renderTodo,
+  wrap: renderWrap, screen: renderScreen,
+};
+function refreshPanel(id){
+  const old = document.getElementById('panel-'+id);
+  const wasActive = old.classList.contains('active');
+  const tmp = document.createElement('div');
+  tmp.innerHTML = PANEL_BUILDERS[id]();
+  const fresh = tmp.firstElementChild;
+  if(wasActive) fresh.classList.add('active');
+  old.replaceWith(fresh);
+  RENDERERS[id]();
+}
+function renderAll(){ Object.values(RENDERERS).forEach(fn=>fn()); }
+
+document.getElementById('panels').innerHTML = STEPS.map(s=>PANEL_BUILDERS[s.id]()).join('');
+showPanel('base');
+</script>
+</body>
+</html>
